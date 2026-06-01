@@ -36,6 +36,8 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       clearTokens()
       if (typeof window !== 'undefined') {
+        // Zustand persist 스토어도 함께 초기화해 무한 루프 방지
+        localStorage.removeItem('auth-store')
         window.location.href = '/login'
       }
     }

@@ -7,6 +7,7 @@ import { RemoveFromCartUseCase } from '@/application/use-cases/cart/remove-from-
 import { AddToCartInput } from '@/domain/repositories/cart.repository'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../store/auth.store'
+import { getAccessToken } from '@/infrastructure/api/client'
 
 const getCartUseCase = new GetCartUseCase(cartRepository)
 const addToCartUseCase = new AddToCartUseCase(cartRepository)
@@ -19,7 +20,7 @@ export function useCart() {
   const cartQuery = useQuery({
     queryKey: ['cart'],
     queryFn: () => getCartUseCase.execute(),
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!getAccessToken(),
   })
 
   const addMutation = useMutation({
