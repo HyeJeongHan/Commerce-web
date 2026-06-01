@@ -94,7 +94,7 @@ export default function CartDrawer() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug truncate">{item.product.name}</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">{item.product.category.name}</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">{item.product.categoryName ?? item.product.category?.name ?? ''}</p>
                     <p className="text-sm font-semibold mt-2">{formatPrice(item.product.price)}</p>
                     <div className="flex items-center justify-between mt-3">
                       <span className="text-xs text-zinc-500">수량 {item.quantity}</span>

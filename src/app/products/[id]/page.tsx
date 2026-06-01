@@ -77,7 +77,7 @@ export default function ProductDetailPage({ params }: Props) {
 
         {/* Info */}
         <div className="flex flex-col py-4">
-          <p className="text-xs tracking-widest uppercase text-zinc-400 mb-2">{product.category.name}</p>
+          <p className="text-xs tracking-widest uppercase text-zinc-400 mb-2">{product.categoryName ?? product.category?.name ?? ''}</p>
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-tight mb-4">
             {product.name}
           </h1>

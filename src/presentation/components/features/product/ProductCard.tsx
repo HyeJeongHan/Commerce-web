@@ -76,7 +76,7 @@ export default function ProductCard({ product }: Props) {
 
       {/* Info */}
       <div className="space-y-1">
-        <p className="text-[10px] tracking-widest uppercase text-zinc-400">{product.category.name}</p>
+        <p className="text-[10px] tracking-widest uppercase text-zinc-400">{product.categoryName ?? product.category?.name ?? ''}</p>
         <p className="text-sm font-medium leading-snug group-hover:underline underline-offset-2 transition-all">
           {product.name}
         </p>

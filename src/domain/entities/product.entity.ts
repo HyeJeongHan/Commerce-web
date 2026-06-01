@@ -12,7 +12,8 @@ export interface Product {
   description?: string
   price: number
   status: ProductStatus
-  category: Category
+  category?: Category
+  categoryName?: string
   stockQuantity: number
   imageUrl?: string
 }
