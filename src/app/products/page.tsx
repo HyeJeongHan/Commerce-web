@@ -25,35 +25,51 @@ export default function ProductsPage() {
   const [sort, setSort] = useState<SortOption>('default')
 
   const { data: categoriesData } = useCategories()
+
+  // 백엔드가 categoryId 필터를 지원하지 않아 전체 목록을 받아 클라이언트에서 필터링
   const {
     data,
     isLoading,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteProducts({
-    size: 12,
-    categoryId: selectedCategoryId ?? undefined,
-    keyword: keyword || undefined,
-  })
+  } = useInfiniteProducts({ size: 20 })
 
-  const allProducts = useMemo(() => {
-    const flat = data?.pages.flatMap((p) => p.content) ?? []
-    return sortProducts(flat, sort)
-  }, [data, sort])
+  const selectedCategoryName = useMemo(
+    () => categoriesData?.find((c) => c.id === selectedCategoryId)?.name ?? null,
+    [categoriesData, selectedCategoryId]
+  )
 
-  const totalElements = data?.pages[0]?.totalElements ?? 0
+  const displayedProducts = useMemo(() => {
+    let list = data?.pages.flatMap((p) => p.content) ?? []
+
+    // 카테고리 필터 (클라이언트 사이드)
+    if (selectedCategoryName) {
+      list = list.filter(
+        (p) =>
+          p.categoryName === selectedCategoryName ||
+          p.category?.name === selectedCategoryName
+      )
+    }
+
+    // 키워드 검색 (클라이언트 사이드)
+    if (keyword.trim()) {
+      const q = keyword.trim().toLowerCase()
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q)
+      )
+    }
+
+    return sortProducts(list, sort)
+  }, [data, selectedCategoryName, keyword, sort])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     setKeyword(inputValue)
   }
 
-  const handleCategorySelect = (id: number | null) => {
-    setSelectedCategoryId(id)
-  }
-
-  // 스크롤 끝 감지 → 다음 페이지 로드
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
@@ -88,17 +104,15 @@ export default function ProductsPage() {
               <CategoryFilter
                 categories={categoriesData}
                 selectedId={selectedCategoryId}
-                onSelect={handleCategorySelect}
+                onSelect={setSelectedCategoryId}
               />
             )}
             <SortSelect value={sort} onChange={setSort} />
           </div>
 
-          {totalElements > 0 && (
-            <p className="text-xs text-zinc-400 md:ml-auto whitespace-nowrap">
-              {totalElements}개 상품
-            </p>
-          )}
+          <p className="text-xs text-zinc-400 md:ml-auto whitespace-nowrap">
+            {displayedProducts.length}개 상품
+          </p>
         </div>
       </div>
 
@@ -109,12 +123,12 @@ export default function ProductsPage() {
         </div>
       ) : (
         <>
-          <ProductGrid products={allProducts} />
+          <ProductGrid products={displayedProducts} />
 
           {/* Infinite scroll sentinel */}
           <div ref={sentinelRef} className="py-8 flex justify-center">
             {isFetchingNextPage && <Spinner size={24} />}
-            {!hasNextPage && allProducts.length > 0 && (
+            {!hasNextPage && !isFetchingNextPage && displayedProducts.length > 0 && (
               <p className="text-xs text-zinc-300 tracking-widest uppercase">End of Collection</p>
             )}
           </div>
