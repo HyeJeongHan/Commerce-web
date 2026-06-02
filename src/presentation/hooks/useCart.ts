@@ -6,8 +6,7 @@ import { AddToCartUseCase } from '@/application/use-cases/cart/add-to-cart.use-c
 import { RemoveFromCartUseCase } from '@/application/use-cases/cart/remove-from-cart.use-case'
 import { AddToCartInput } from '@/domain/repositories/cart.repository'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useAuthStore } from '../store/auth.store'
-import { hasSession } from '@/infrastructure/api/client'
+import { useIsAuthReady } from './useIsAuthReady'
 
 const getCartUseCase = new GetCartUseCase(cartRepository)
 const addToCartUseCase = new AddToCartUseCase(cartRepository)
@@ -15,12 +14,12 @@ const removeFromCartUseCase = new RemoveFromCartUseCase(cartRepository)
 
 export function useCart() {
   const queryClient = useQueryClient()
-  const { isAuthenticated } = useAuthStore()
+  const isAuthReady = useIsAuthReady()
 
   const cartQuery = useQuery({
     queryKey: ['cart'],
     queryFn: () => getCartUseCase.execute(),
-    enabled: isAuthenticated && hasSession(),
+    enabled: isAuthReady,
   })
 
   const addMutation = useMutation({

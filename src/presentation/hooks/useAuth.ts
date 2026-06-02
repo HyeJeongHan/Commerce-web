@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { LoginInput, SignupInput } from '@/domain/repositories/auth.repository'
 import { authRepository } from '@/infrastructure/repositories/auth.repository.impl'
 import { LoginUseCase } from '@/application/use-cases/auth/login.use-case'
@@ -19,8 +20,7 @@ export function useAuth() {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  // 세션 마커 쿠키가 있고 아직 member 정보가 없을 때만 /me 호출
-  useQuery({
+  const meQuery = useQuery({
     queryKey: ['me'],
     queryFn: async () => {
       const me = await getMeUseCase.execute()
@@ -31,10 +31,18 @@ export function useAuth() {
     retry: false,
   })
 
+  // #6: /me 실패 시 세션 완전 초기화 (axios 인터셉터와 별개로 Zustand 상태도 정리)
+  useEffect(() => {
+    if (meQuery.isError) {
+      clearSession()
+      logout()
+      queryClient.clear()
+    }
+  }, [meQuery.isError, logout, queryClient])
+
   const loginMutation = useMutation({
     mutationFn: (input: LoginInput) => loginUseCase.execute(input),
     onSuccess: () => {
-      // /me 캐시 무효화 → 위 useQuery가 자동으로 재호출
       queryClient.invalidateQueries({ queryKey: ['me'] })
       router.push('/')
     },

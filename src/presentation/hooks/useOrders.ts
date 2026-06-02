@@ -6,30 +6,29 @@ import { GetOrdersUseCase } from '@/application/use-cases/order/get-orders.use-c
 import { PayOrderUseCase } from '@/application/use-cases/order/pay-order.use-case'
 import { CreateOrderInput } from '@/domain/repositories/order.repository'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useAuthStore } from '../store/auth.store'
-import { hasSession } from '@/infrastructure/api/client'
+import { useIsAuthReady } from './useIsAuthReady'
 
 const createOrderUseCase = new CreateOrderUseCase(orderRepository)
 const getOrdersUseCase = new GetOrdersUseCase(orderRepository)
 const payOrderUseCase = new PayOrderUseCase(orderRepository)
 
 export function useOrders() {
-  const { isAuthenticated } = useAuthStore()
+  const isAuthReady = useIsAuthReady()
 
   return useQuery({
     queryKey: ['orders'],
     queryFn: () => getOrdersUseCase.execute(),
-    enabled: isAuthenticated && hasSession(),
+    enabled: isAuthReady,
   })
 }
 
 export function useOrder(orderId: number) {
-  const { isAuthenticated } = useAuthStore()
+  const isAuthReady = useIsAuthReady()
 
   return useQuery({
     queryKey: ['order', orderId],
     queryFn: () => orderRepository.getOrder(orderId),
-    enabled: isAuthenticated && hasSession() && !!orderId,
+    enabled: isAuthReady && !!orderId,
   })
 }
 
