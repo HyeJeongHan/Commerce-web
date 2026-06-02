@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TOKEN_COOKIE } from '@/shared/constants/auth'
 
 // Next.js Route Handler로 직접 처리하는 경로 (rewrite 프록시 대상 아님)
-const NEXTJS_ROUTES = ['/api/auth/login', '/api/auth/logout']
+const NEXTJS_ROUTES = ['/api/auth/login', '/api/auth/logout', '/api/auth/refresh']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl

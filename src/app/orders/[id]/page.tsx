@@ -2,7 +2,8 @@
 
 import { use, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useOrder, usePayOrder, useCancelOrder } from '@/presentation/hooks/useOrders'
+import { useOrder, usePayOrder, useCancelOrder, useUpdateOrderStatus } from '@/presentation/hooks/useOrders'
+import { OrderStatus } from '@/domain/entities/order.entity'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import OrderStatusBadge from '@/presentation/components/features/order/OrderStatusBadge'
 import Spinner from '@/presentation/components/ui/Spinner'
@@ -18,11 +19,13 @@ interface Props {
 export default function OrderDetailPage({ params }: Props) {
   const { id } = use(params)
   const orderId = parseInt(id)
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, member } = useAuthStore()
   const router = useRouter()
   const { data: order, isLoading } = useOrder(orderId)
   const payOrder = usePayOrder()
   const cancelOrder = useCancelOrder()
+  const updateStatus = useUpdateOrderStatus()
+  const isAdmin = member?.role === 'ADMIN'
 
   useEffect(() => {
     if (_hasHydrated && !isAuthenticated) {
@@ -126,6 +129,23 @@ export default function OrderDetailPage({ params }: Props) {
               >
                 {cancelOrder.isPending ? 'Cancelling...' : 'Cancel Order'}
               </button>
+            )}
+
+            {/* 어드민 전용: 주문 상태 직접 변경 */}
+            {isAdmin && order.orderStatus !== 'CANCELLED' && (
+              <div className="mt-4 pt-4 border-t border-zinc-200">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 mb-2">Admin</p>
+                <select
+                  value={order.orderStatus}
+                  onChange={(e) => updateStatus.mutate({ orderId, status: e.target.value as OrderStatus })}
+                  disabled={updateStatus.isPending}
+                  className="w-full text-xs border border-zinc-300 px-3 py-2.5 focus:outline-none focus:border-black transition-colors bg-zinc-50 disabled:opacity-50"
+                >
+                  {(['PENDING', 'PAID', 'SHIPPED', 'DELIVERED'] as OrderStatus[]).map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
             )}
           </div>
         </div>

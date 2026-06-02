@@ -67,3 +67,16 @@ export function useCancelOrder() {
     },
   })
 }
+
+export function useUpdateOrderStatus() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ orderId, status }: { orderId: number; status: import('@/domain/entities/order.entity').OrderStatus }) =>
+      orderRepository.updateOrderStatus(orderId, status),
+    onSuccess: (_, { orderId }) => {
+      queryClient.invalidateQueries({ queryKey: ['order', orderId] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+    },
+  })
+}

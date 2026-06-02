@@ -11,6 +11,8 @@ export class ProductRepositoryImpl implements IProductRepository {
         size: params?.size ?? 12,
         categoryId: params?.categoryId,
         keyword: params?.keyword,
+        minPrice: params?.minPrice,
+        maxPrice: params?.maxPrice,
       },
     })
     return data.data

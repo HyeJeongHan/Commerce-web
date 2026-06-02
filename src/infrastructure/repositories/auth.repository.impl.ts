@@ -1,5 +1,5 @@
 import { Member } from '@/domain/entities/member.entity'
-import { AuthTokens, IAuthRepository, LoginInput, SignupInput } from '@/domain/repositories/auth.repository'
+import { AuthTokens, ChangePasswordInput, IAuthRepository, LoginInput, SignupInput } from '@/domain/repositories/auth.repository'
 import { ApiResponse } from '@/shared/types/api.types'
 import apiClient from '../api/client'
 
@@ -17,6 +17,10 @@ export class AuthRepositoryImpl implements IAuthRepository {
   async getMe(): Promise<Member> {
     const { data } = await apiClient.get<ApiResponse<Member>>('/api/members/me')
     return data.data
+  }
+
+  async changePassword(input: ChangePasswordInput): Promise<void> {
+    await apiClient.put('/api/members/password', input)
   }
 }
 

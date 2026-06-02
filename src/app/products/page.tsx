@@ -6,6 +6,7 @@ import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObs
 import ProductGrid from '@/presentation/components/features/product/ProductGrid'
 import CategoryFilter from '@/presentation/components/features/product/CategoryFilter'
 import SortSelect, { SortOption } from '@/presentation/components/features/product/SortSelect'
+import PriceRangeFilter from '@/presentation/components/features/product/PriceRangeFilter'
 import Spinner from '@/presentation/components/ui/Spinner'
 import { Product } from '@/domain/entities/product.entity'
 import { Search } from 'lucide-react'
@@ -23,51 +24,38 @@ export default function ProductsPage() {
   const [keyword, setKeyword] = useState('')
   const [inputValue, setInputValue] = useState('')
   const [sort, setSort] = useState<SortOption>('default')
+  const [minPrice, setMinPrice] = useState<number | undefined>()
+  const [maxPrice, setMaxPrice] = useState<number | undefined>()
 
   const { data: categoriesData } = useCategories()
-
-  // 백엔드가 categoryId 필터를 지원하지 않아 전체 목록을 받아 클라이언트에서 필터링
   const {
     data,
     isLoading,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteProducts({ size: 20 })
+  } = useInfiniteProducts({
+    size: 12,
+    categoryId: selectedCategoryId ?? undefined,
+    keyword: keyword || undefined,
+    minPrice,
+    maxPrice,
+  })
 
-  const selectedCategoryName = useMemo(
-    () => categoriesData?.find((c) => c.id === selectedCategoryId)?.name ?? null,
-    [categoriesData, selectedCategoryId]
-  )
-
+  // 서버 필터 결과를 클라이언트에서 추가 정렬만 적용
   const displayedProducts = useMemo(() => {
-    let list = data?.pages.flatMap((p) => p.content) ?? []
-
-    // 카테고리 필터 (클라이언트 사이드)
-    if (selectedCategoryName) {
-      list = list.filter(
-        (p) =>
-          p.categoryName === selectedCategoryName ||
-          p.category?.name === selectedCategoryName
-      )
-    }
-
-    // 키워드 검색 (클라이언트 사이드)
-    if (keyword.trim()) {
-      const q = keyword.trim().toLowerCase()
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.description?.toLowerCase().includes(q)
-      )
-    }
-
-    return sortProducts(list, sort)
-  }, [data, selectedCategoryName, keyword, sort])
+    const flat = data?.pages.flatMap((p) => p.content) ?? []
+    return sortProducts(flat, sort)
+  }, [data, sort])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     setKeyword(inputValue)
+  }
+
+  const handlePriceChange = (min: number | undefined, max: number | undefined) => {
+    setMinPrice(min)
+    setMaxPrice(max)
   }
 
   const loadMore = useCallback(() => {
@@ -85,8 +73,8 @@ export default function ProductsPage() {
 
       {/* 검색 + 필터 + 정렬 */}
       <div className="flex flex-col gap-4 mb-10">
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <form onSubmit={handleSearch} className="relative w-full md:w-72">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 flex-wrap">
+          <form onSubmit={handleSearch} className="relative w-full md:w-64 flex-shrink-0">
             <input
               type="search"
               value={inputValue}
@@ -99,16 +87,21 @@ export default function ProductsPage() {
             </button>
           </form>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {categoriesData && (
-              <CategoryFilter
-                categories={categoriesData}
-                selectedId={selectedCategoryId}
-                onSelect={setSelectedCategoryId}
-              />
-            )}
-            <SortSelect value={sort} onChange={setSort} />
-          </div>
+          {categoriesData && (
+            <CategoryFilter
+              categories={categoriesData}
+              selectedId={selectedCategoryId}
+              onSelect={setSelectedCategoryId}
+            />
+          )}
+
+          <PriceRangeFilter
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onChange={handlePriceChange}
+          />
+
+          <SortSelect value={sort} onChange={setSort} />
 
           <p className="text-xs text-zinc-400 md:ml-auto whitespace-nowrap">
             {displayedProducts.length}개 상품
@@ -116,7 +109,6 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* 상품 그리드 */}
       {isLoading ? (
         <div className="flex justify-center py-24">
           <Spinner size={32} />
@@ -124,8 +116,6 @@ export default function ProductsPage() {
       ) : (
         <>
           <ProductGrid products={displayedProducts} />
-
-          {/* Infinite scroll sentinel */}
           <div ref={sentinelRef} className="py-8 flex justify-center">
             {isFetchingNextPage && <Spinner size={24} />}
             {!hasNextPage && !isFetchingNextPage && displayedProducts.length > 0 && (

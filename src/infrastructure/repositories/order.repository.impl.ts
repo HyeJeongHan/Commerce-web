@@ -1,4 +1,4 @@
-import { Order } from '@/domain/entities/order.entity'
+import { Order, OrderStatus } from '@/domain/entities/order.entity'
 import { CreateOrderInput, IOrderRepository } from '@/domain/repositories/order.repository'
 import { ApiResponse } from '@/shared/types/api.types'
 import apiClient from '../api/client'
@@ -26,6 +26,14 @@ export class OrderRepositoryImpl implements IOrderRepository {
 
   async cancelOrder(orderId: number): Promise<Order> {
     const { data } = await apiClient.post<ApiResponse<Order>>(`/api/orders/${orderId}/cancel`)
+    return data.data
+  }
+
+  async updateOrderStatus(orderId: number, status: OrderStatus): Promise<Order> {
+    const { data } = await apiClient.patch<ApiResponse<Order>>(
+      `/api/orders/${orderId}/status`,
+      { status }
+    )
     return data.data
   }
 }

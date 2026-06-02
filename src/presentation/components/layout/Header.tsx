@@ -67,6 +67,9 @@ export default function Header() {
                   <User size={18} />
                 </button>
                 <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-zinc-100 shadow-lg rounded-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <Link href={ROUTES.ACCOUNT} className="block px-4 py-2.5 text-xs tracking-wide hover:bg-zinc-50">
+                    내 계정
+                  </Link>
                   <Link href={ROUTES.ORDERS} className="block px-4 py-2.5 text-xs tracking-wide hover:bg-zinc-50">
                     주문 내역
                   </Link>

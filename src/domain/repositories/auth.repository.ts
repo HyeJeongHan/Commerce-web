@@ -16,8 +16,14 @@ export interface AuthTokens {
   refreshToken: string
 }
 
+export interface ChangePasswordInput {
+  currentPassword: string
+  newPassword: string
+}
+
 export interface IAuthRepository {
   signup(input: SignupInput): Promise<void>
   login(input: LoginInput): Promise<AuthTokens>
   getMe(): Promise<Member>
+  changePassword(input: ChangePasswordInput): Promise<void>
 }

@@ -1,3 +1,5 @@
 export const AUTH_STORE_KEY = 'auth-store'
 export const SESSION_COOKIE = 'has_session'
 export const TOKEN_COOKIE = 'access_token'
+export const REFRESH_TOKEN_COOKIE = 'refresh_token'
+export const HAS_REFRESH_COOKIE = 'has_refresh'

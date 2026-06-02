@@ -6,6 +6,7 @@ export const ROUTES = {
   WISHLIST: '/wishlist',
   ORDERS: '/orders',
   ORDER: (id: number) => `/orders/${id}`,
+  ACCOUNT: '/account',
   LOGIN: '/login',
   SIGNUP: '/signup',
 } as const

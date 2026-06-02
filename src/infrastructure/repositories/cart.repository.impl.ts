@@ -13,6 +13,14 @@ export class CartRepositoryImpl implements ICartRepository {
     await apiClient.post<ApiResponse<void>>('/api/cart/items', input)
   }
 
+  async updateItemQuantity(cartItemId: number, quantity: number): Promise<Cart> {
+    const { data } = await apiClient.patch<ApiResponse<Cart>>(
+      `/api/cart/items/${cartItemId}`,
+      { quantity }
+    )
+    return data.data
+  }
+
   async removeItem(cartItemId: number): Promise<void> {
     await apiClient.delete<ApiResponse<void>>(`/api/cart/items/${cartItemId}`)
   }

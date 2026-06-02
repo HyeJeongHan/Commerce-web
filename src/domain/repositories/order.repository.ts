@@ -1,4 +1,4 @@
-import { Order } from '../entities/order.entity'
+import { Order, OrderStatus } from '../entities/order.entity'
 
 export interface CreateOrderInput {
   cartItemIds: number[]
@@ -10,4 +10,5 @@ export interface IOrderRepository {
   getOrder(orderId: number): Promise<Order>
   payOrder(orderId: number): Promise<Order>
   cancelOrder(orderId: number): Promise<Order>
+  updateOrderStatus(orderId: number, status: OrderStatus): Promise<Order>
 }

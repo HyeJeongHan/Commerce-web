@@ -5,6 +5,8 @@ export interface ProductListParams {
   size?: number
   categoryId?: number
   keyword?: string
+  minPrice?: number
+  maxPrice?: number
 }
 
 export interface IProductRepository {
