@@ -55,7 +55,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <p className="text-3xl font-black tracking-[-0.05em] uppercase">COMMERCE</p>
+          <img src="/ccomm_light_card.png" alt="ccomm" className="h-8 w-auto brightness-0 invert" />
           <p className="text-xs text-zinc-500">© 2026 Commerce. All rights reserved.</p>
         </div>
       </div>

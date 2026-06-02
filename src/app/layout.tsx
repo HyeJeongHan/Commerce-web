@@ -9,8 +9,12 @@ import CartDrawer from '@/presentation/components/layout/CartDrawer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: { default: 'COMMERCE', template: '%s | COMMERCE' },
-  description: '프리미엄 온라인 패션 커머스',
+  title: { default: 'ccomm', template: '%s | ccomm' },
+  description: '프리미엄 온라인 커머스',
+  icons: {
+    icon: '/ccomm_light_icon.png',
+    apple: '/ccomm_light_icon.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

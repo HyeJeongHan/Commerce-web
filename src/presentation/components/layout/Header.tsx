@@ -28,8 +28,8 @@ export default function Header() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href={ROUTES.HOME} className="text-xl font-black tracking-[-0.05em] uppercase">
-            COMMERCE
+          <Link href={ROUTES.HOME}>
+            <img src="/ccomm_light_card.png" alt="ccomm" className="h-8 w-auto" />
           </Link>
 
           {/* Desktop Nav */}
