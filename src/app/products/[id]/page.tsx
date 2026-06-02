@@ -8,10 +8,11 @@ import { useAuthStore } from '@/presentation/store/auth.store'
 import { useWishlist } from '@/presentation/hooks/useWishlist'
 import { useRecentlyViewed } from '@/presentation/hooks/useRecentlyViewed'
 import { formatPrice } from '@/shared/utils/format'
+import { getProductImageUrl } from '@/shared/utils/productImage'
 import { ROUTES } from '@/shared/constants/routes'
 import Spinner from '@/presentation/components/ui/Spinner'
 import RecentlyViewed from '@/presentation/components/features/product/RecentlyViewed'
-import { ShoppingBag, ArrowLeft, Heart } from 'lucide-react'
+import { ArrowLeft, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -77,13 +78,11 @@ export default function ProductDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Image */}
           <div className="aspect-[3/4] bg-zinc-100 overflow-hidden">
-            {product.imageUrl ? (
-              <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center">
-                <ShoppingBag size={48} className="text-zinc-300" />
-              </div>
-            )}
+            <img
+              src={getProductImageUrl(product)}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Info */}

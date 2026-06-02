@@ -7,7 +7,8 @@ import { useCart } from '@/presentation/hooks/useCart'
 import { useUIStore } from '@/presentation/store/ui.store'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { useWishlist } from '@/presentation/hooks/useWishlist'
-import { ShoppingBag, Heart } from 'lucide-react'
+import { getProductImageUrl } from '@/shared/utils/productImage'
+import { Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -49,17 +50,11 @@ export default function ProductCard({ product }: Props) {
       onMouseLeave={() => setHovered(false)}
     >
       <div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden mb-4">
-        {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className={`w-full h-full object-cover transition-transform duration-700 ${hovered ? 'scale-105' : 'scale-100'}`}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center">
-            <ShoppingBag size={32} className="text-zinc-300" />
-          </div>
-        )}
+        <img
+          src={getProductImageUrl(product)}
+          alt={product.name}
+          className={`w-full h-full object-cover transition-transform duration-700 ${hovered ? 'scale-105' : 'scale-100'}`}
+        />
 
         {product.status === 'INACTIVE' && (
           <div className="absolute top-3 left-3 bg-black text-white text-[10px] font-semibold tracking-widest uppercase px-2 py-1">

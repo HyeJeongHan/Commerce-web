@@ -6,6 +6,7 @@ import { useCart } from '@/presentation/hooks/useCart'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { formatPrice } from '@/shared/utils/format'
 import { getCartItemName, getCartItemPrice, getCartItemCategory, getCartTotal } from '@/domain/entities/cart.entity'
+import { getProductImageUrl } from '@/shared/utils/productImage'
 import { useCreateOrder } from '@/presentation/hooks/useOrders'
 import Link from 'next/link'
 import { ROUTES } from '@/shared/constants/routes'
@@ -76,14 +77,12 @@ export default function CartDrawer() {
               {cart.items.map((item) => (
                 <li key={item.id} className="flex gap-4">
                   <div className="w-20 h-24 bg-zinc-100 flex-shrink-0 rounded-sm overflow-hidden">
-                    {item.product?.imageUrl ? (
+                    {item.product && (
                       <img
-                        src={item.product.imageUrl}
+                        src={getProductImageUrl(item.product)}
                         alt={getCartItemName(item)}
                         className="w-full h-full object-cover"
                       />
-                    ) : (
-                      <div className="w-full h-full bg-zinc-100" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">

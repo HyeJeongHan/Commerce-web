@@ -2,8 +2,8 @@
 
 import { useRecentlyViewed } from '@/presentation/hooks/useRecentlyViewed'
 import { formatPrice } from '@/shared/utils/format'
+import { getProductImageUrl } from '@/shared/utils/productImage'
 import { ROUTES } from '@/shared/constants/routes'
-import { ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 
 export default function RecentlyViewed() {
@@ -34,17 +34,11 @@ export default function RecentlyViewed() {
             className="flex-shrink-0 w-36 group"
           >
             <div className="aspect-[3/4] bg-zinc-100 overflow-hidden mb-2">
-              {product.imageUrl ? (
-                <img
-                  src={product.imageUrl}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <ShoppingBag size={20} className="text-zinc-300" />
-                </div>
-              )}
+              <img
+                src={getProductImageUrl(product)}
+                alt={product.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
             </div>
             <p className="text-xs font-medium leading-snug line-clamp-2 group-hover:underline underline-offset-2">
               {product.name}
