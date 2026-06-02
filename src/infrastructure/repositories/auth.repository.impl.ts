@@ -1,7 +1,7 @@
 import { Member } from '@/domain/entities/member.entity'
 import { AuthTokens, IAuthRepository, LoginInput, SignupInput } from '@/domain/repositories/auth.repository'
 import { ApiResponse } from '@/shared/types/api.types'
-import apiClient, { setAccessToken } from '../api/client'
+import apiClient from '../api/client'
 
 export class AuthRepositoryImpl implements IAuthRepository {
   async signup(input: SignupInput): Promise<void> {
@@ -9,8 +9,8 @@ export class AuthRepositoryImpl implements IAuthRepository {
   }
 
   async login(input: LoginInput): Promise<AuthTokens> {
+    // Next.js Route Handler(/api/auth/login)가 httpOnly 쿠키 설정을 담당
     const { data } = await apiClient.post<ApiResponse<AuthTokens>>('/api/auth/login', input)
-    setAccessToken(data.data.accessToken)
     return data.data
   }
 

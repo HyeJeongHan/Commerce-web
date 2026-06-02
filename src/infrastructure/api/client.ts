@@ -1,43 +1,32 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
+import { AUTH_STORE_KEY, SESSION_COOKIE } from '@/shared/constants/auth'
 
-const BASE_URL = ''
-
-const ACCESS_TOKEN_KEY = 'access_token'
-
-export function getAccessToken(): string | undefined {
-  return Cookies.get(ACCESS_TOKEN_KEY)
+// 토큰 자체는 httpOnly 쿠키(서버 전용) — JS에서 직접 접근 불가
+// 로그인 여부만 비민감 세션 마커로 확인
+export function hasSession(): boolean {
+  return !!Cookies.get(SESSION_COOKIE)
 }
 
-export function setAccessToken(token: string): void {
-  Cookies.set(ACCESS_TOKEN_KEY, token, { expires: 1 / 48 }) // 30 min
-}
-
-export function clearTokens(): void {
-  Cookies.remove(ACCESS_TOKEN_KEY)
+export function clearSession(): void {
+  Cookies.remove(SESSION_COOKIE)
+  localStorage.removeItem(AUTH_STORE_KEY)
 }
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: '',
   headers: { 'Content-Type': 'application/json' },
 })
 
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = getAccessToken()
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+// Authorization 헤더는 middleware(src/middleware.ts)가 httpOnly 쿠키에서 읽어 자동 주입
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => config)
 
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      clearTokens()
+      clearSession()
       if (typeof window !== 'undefined') {
-        // Zustand persist 스토어도 함께 초기화해 무한 루프 방지
-        localStorage.removeItem('auth-store')
         window.location.href = '/login'
       }
     }

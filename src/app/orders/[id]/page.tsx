@@ -1,6 +1,7 @@
 'use client'
 
-import { use } from 'react'
+import { use, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useOrder, usePayOrder, useCancelOrder } from '@/presentation/hooks/useOrders'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import OrderStatusBadge from '@/presentation/components/features/order/OrderStatusBadge'
@@ -9,7 +10,6 @@ import { formatPrice, formatDate } from '@/shared/utils/format'
 import { ROUTES } from '@/shared/constants/routes'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -18,12 +18,25 @@ interface Props {
 export default function OrderDetailPage({ params }: Props) {
   const { id } = use(params)
   const orderId = parseInt(id)
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const router = useRouter()
   const { data: order, isLoading } = useOrder(orderId)
   const payOrder = usePayOrder()
   const cancelOrder = useCancelOrder()
 
-  if (!isAuthenticated) redirect(ROUTES.LOGIN)
+  useEffect(() => {
+    if (_hasHydrated && !isAuthenticated) {
+      router.replace(ROUTES.LOGIN)
+    }
+  }, [_hasHydrated, isAuthenticated, router])
+
+  if (!_hasHydrated || !isAuthenticated) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Spinner size={32} />
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
@@ -64,7 +77,6 @@ export default function OrderDetailPage({ params }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Items */}
         <div className="lg:col-span-2 space-y-4">
           {order.items.map((item) => (
             <div key={item.id} className="flex gap-4 py-4 border-b border-zinc-100">
@@ -79,7 +91,6 @@ export default function OrderDetailPage({ params }: Props) {
           ))}
         </div>
 
-        {/* Summary */}
         <div className="bg-zinc-50 p-6 self-start space-y-4">
           <h2 className="text-sm font-semibold uppercase tracking-widest">Order Summary</h2>
           <div className="space-y-2 text-sm">

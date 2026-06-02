@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useOrders } from '@/presentation/hooks/useOrders'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import OrderStatusBadge from '@/presentation/components/features/order/OrderStatusBadge'
@@ -8,14 +10,26 @@ import { formatPrice, formatDate } from '@/shared/utils/format'
 import { ROUTES } from '@/shared/constants/routes'
 import { Package } from 'lucide-react'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 
 export default function OrdersPage() {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const router = useRouter()
   const { data: orders, isLoading } = useOrders()
 
-  if (!isAuthenticated) {
-    redirect(ROUTES.LOGIN)
+  // 하이드레이션 완료 후 미인증 시 리다이렉트
+  useEffect(() => {
+    if (_hasHydrated && !isAuthenticated) {
+      router.replace(ROUTES.LOGIN)
+    }
+  }, [_hasHydrated, isAuthenticated, router])
+
+  // 하이드레이션 전 또는 리다이렉트 대기 중
+  if (!_hasHydrated || !isAuthenticated) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Spinner size={32} />
+      </div>
+    )
   }
 
   return (
@@ -56,9 +70,7 @@ export default function OrdersPage() {
                 <OrderStatusBadge status={order.orderStatus} />
               </div>
               <div className="flex items-end justify-between">
-                <p className="text-sm text-zinc-500">
-                  {order.items.length}개 상품
-                </p>
+                <p className="text-sm text-zinc-500">{order.items.length}개 상품</p>
                 <p className="text-lg font-bold">{formatPrice(order.totalPrice)}</p>
               </div>
             </Link>

@@ -1,12 +1,14 @@
 import { Member } from '@/domain/entities/member.entity'
-import { clearTokens } from '@/infrastructure/api/client'
+import { AUTH_STORE_KEY } from '@/shared/constants/auth'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface AuthState {
   member: Member | null
   isAuthenticated: boolean
+  _hasHydrated: boolean
   setMember: (member: Member | null) => void
+  setHasHydrated: (v: boolean) => void
   logout: () => void
 }
 
@@ -15,12 +17,18 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       member: null,
       isAuthenticated: false,
+      _hasHydrated: false,
       setMember: (member) => set({ member, isAuthenticated: !!member }),
-      logout: () => {
-        clearTokens()
-        set({ member: null, isAuthenticated: false })
-      },
+      setHasHydrated: (v) => set({ _hasHydrated: v }),
+      logout: () => set({ member: null, isAuthenticated: false }),
     }),
-    { name: 'auth-store' }
+    {
+      name: AUTH_STORE_KEY,
+      // 민감 정보(member)는 저장하지 않고 인증 상태만 유지
+      partialize: (state) => ({ isAuthenticated: state.isAuthenticated }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      },
+    }
   )
 )

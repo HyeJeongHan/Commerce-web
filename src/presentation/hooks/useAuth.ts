@@ -6,9 +6,9 @@ import { LoginUseCase } from '@/application/use-cases/auth/login.use-case'
 import { SignupUseCase } from '@/application/use-cases/auth/signup.use-case'
 import { GetMeUseCase } from '@/application/use-cases/auth/get-me.use-case'
 import { useAuthStore } from '../store/auth.store'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { getAccessToken } from '@/infrastructure/api/client'
+import { hasSession, clearSession } from '@/infrastructure/api/client'
 
 const loginUseCase = new LoginUseCase(authRepository)
 const signupUseCase = new SignupUseCase(authRepository)
@@ -17,7 +17,9 @@ const getMeUseCase = new GetMeUseCase(authRepository)
 export function useAuth() {
   const { member, isAuthenticated, setMember, logout } = useAuthStore()
   const router = useRouter()
+  const queryClient = useQueryClient()
 
+  // 세션 마커 쿠키가 있고 아직 member 정보가 없을 때만 /me 호출
   useQuery({
     queryKey: ['me'],
     queryFn: async () => {
@@ -25,15 +27,15 @@ export function useAuth() {
       setMember(me)
       return me
     },
-    enabled: !!getAccessToken() && !member,
+    enabled: hasSession() && !member,
     retry: false,
   })
 
   const loginMutation = useMutation({
     mutationFn: (input: LoginInput) => loginUseCase.execute(input),
-    onSuccess: async () => {
-      const me = await getMeUseCase.execute()
-      setMember(me)
+    onSuccess: () => {
+      // /me 캐시 무효화 → 위 useQuery가 자동으로 재호출
+      queryClient.invalidateQueries({ queryKey: ['me'] })
       router.push('/')
     },
   })
@@ -43,8 +45,11 @@ export function useAuth() {
     onSuccess: () => router.push('/login'),
   })
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    clearSession()
     logout()
+    queryClient.clear()
     router.push('/')
   }
 

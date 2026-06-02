@@ -7,7 +7,7 @@ import { PayOrderUseCase } from '@/application/use-cases/order/pay-order.use-cas
 import { CreateOrderInput } from '@/domain/repositories/order.repository'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../store/auth.store'
-import { getAccessToken } from '@/infrastructure/api/client'
+import { hasSession } from '@/infrastructure/api/client'
 
 const createOrderUseCase = new CreateOrderUseCase(orderRepository)
 const getOrdersUseCase = new GetOrdersUseCase(orderRepository)
@@ -19,7 +19,7 @@ export function useOrders() {
   return useQuery({
     queryKey: ['orders'],
     queryFn: () => getOrdersUseCase.execute(),
-    enabled: isAuthenticated && !!getAccessToken(),
+    enabled: isAuthenticated && hasSession(),
   })
 }
 
@@ -29,7 +29,7 @@ export function useOrder(orderId: number) {
   return useQuery({
     queryKey: ['order', orderId],
     queryFn: () => orderRepository.getOrder(orderId),
-    enabled: isAuthenticated && !!getAccessToken() && !!orderId,
+    enabled: isAuthenticated && hasSession() && !!orderId,
   })
 }
 
