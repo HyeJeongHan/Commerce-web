@@ -4,6 +4,7 @@ import { orderRepository } from '@/infrastructure/repositories/order.repository.
 import { CreateOrderUseCase } from '@/application/use-cases/order/create-order.use-case'
 import { GetOrdersUseCase } from '@/application/use-cases/order/get-orders.use-case'
 import { PayOrderUseCase } from '@/application/use-cases/order/pay-order.use-case'
+import { OrderStatus } from '@/domain/entities/order.entity'
 import { CreateOrderInput } from '@/domain/repositories/order.repository'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useIsAuthReady } from './useIsAuthReady'
@@ -72,7 +73,7 @@ export function useUpdateOrderStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ orderId, status }: { orderId: number; status: import('@/domain/entities/order.entity').OrderStatus }) =>
+    mutationFn: ({ orderId, status }: { orderId: number; status: OrderStatus }) =>
       orderRepository.updateOrderStatus(orderId, status),
     onSuccess: (_, { orderId }) => {
       queryClient.invalidateQueries({ queryKey: ['order', orderId] })

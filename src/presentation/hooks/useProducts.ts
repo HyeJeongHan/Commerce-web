@@ -11,10 +11,11 @@ export function useInfiniteProducts(params?: Omit<ProductListParams, 'page'>) {
   return useInfiniteQuery({
     queryKey: ['products', params],
     queryFn: ({ pageParam = 0 }) =>
-      productRepository.getProducts({ ...params, page: pageParam as number, size: 12 }),
+      productRepository.getProducts({ ...params, page: pageParam as number }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.last ? undefined : lastPage.number + 1,
+    staleTime: 60 * 1000, // 60초 캐시로 필터 전환 시 불필요한 재조회 감소
   })
 }
 

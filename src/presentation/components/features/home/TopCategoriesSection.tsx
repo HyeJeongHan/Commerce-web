@@ -18,6 +18,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80'
 
 export default function TopCategoriesSection() {
+  // 카테고리 집계용: staleTime 길게 설정해 홈 재방문마다 재조회 방지
   const { data, isLoading } = useInfiniteProducts({ size: 100 })
 
   // 카테고리별 상품 수 집계 → 상위 3개 추출

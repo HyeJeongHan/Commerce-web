@@ -37,13 +37,19 @@ export default function AccountPage() {
     mutationFn: ({ currentPassword, newPassword }: FormValues) =>
       authRepository.changePassword({ currentPassword, newPassword }),
     onSuccess: () => {
-      alert('비밀번호가 변경되었습니다.')
       reset()
+      // 3초 후 성공 배너 자동 숨김
+      setTimeout(() => mutation.reset(), 3000)
     },
   })
 
   if (!_hasHydrated || !isAuthenticated) {
     return <div className="flex justify-center items-center min-h-[60vh]"><Spinner size={32} /></div>
+  }
+
+  const onSubmit = (data: FormValues) => {
+    mutation.reset() // 이전 상태 초기화 후 새 요청
+    mutation.mutate(data)
   }
 
   return (
@@ -74,7 +80,7 @@ export default function AccountPage() {
         {/* 비밀번호 변경 */}
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-widest mb-6">비밀번호 변경</h2>
-          <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {[
               { name: 'currentPassword' as const, label: '현재 비밀번호', placeholder: '••••••••' },
               { name: 'newPassword' as const, label: '새 비밀번호', placeholder: '8자 이상' },

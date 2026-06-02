@@ -13,7 +13,7 @@ import { ROUTES } from '@/shared/constants/routes'
 
 export default function CartDrawer() {
   const { isCartOpen, closeCart } = useUIStore()
-  const { cart, removeFromCart, increaseQuantity, decreaseQuantity, isRemoving } = useCart()
+  const { cart, removeFromCart, increaseQuantity, decreaseQuantity, isRemoving, isUpdatingQuantity } = useCart()
   const { isAuthenticated } = useAuthStore()
   const createOrder = useCreateOrder()
 
@@ -95,7 +95,7 @@ export default function CartDrawer() {
                       <div className="flex items-center border border-zinc-200">
                         <button
                           onClick={() => decreaseQuantity(item)}
-                          disabled={isRemoving}
+                          disabled={isUpdatingQuantity}
                           className="w-7 h-7 flex items-center justify-center hover:bg-zinc-50 transition-colors disabled:opacity-40"
                         >
                           <Minus size={12} />
@@ -103,7 +103,7 @@ export default function CartDrawer() {
                         <span className="w-8 text-center text-xs font-medium">{item.quantity}</span>
                         <button
                           onClick={() => increaseQuantity(item)}
-                          disabled={isRemoving}
+                          disabled={isUpdatingQuantity}
                           className="w-7 h-7 flex items-center justify-center hover:bg-zinc-50 transition-colors disabled:opacity-40"
                         >
                           <Plus size={12} />

@@ -20,7 +20,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
   }
 
   async changePassword(input: ChangePasswordInput): Promise<void> {
-    await apiClient.put('/api/members/password', input)
+    await apiClient.put<ApiResponse<void>>('/api/members/password', input)
   }
 }
 
