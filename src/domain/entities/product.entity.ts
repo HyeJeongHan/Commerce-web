@@ -24,4 +24,6 @@ export interface ProductPage {
   totalPages: number
   size: number
   number: number
+  last: boolean
+  first: boolean
 }

@@ -6,7 +6,8 @@ import { ROUTES } from '@/shared/constants/routes'
 import { useCart } from '@/presentation/hooks/useCart'
 import { useUIStore } from '@/presentation/store/ui.store'
 import { useAuthStore } from '@/presentation/store/auth.store'
-import { ShoppingBag } from 'lucide-react'
+import { useWishlist } from '@/presentation/hooks/useWishlist'
+import { ShoppingBag, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -19,8 +20,11 @@ export default function ProductCard({ product }: Props) {
   const { addToCart, isAdding } = useCart()
   const { openCart } = useUIStore()
   const { isAuthenticated } = useAuthStore()
+  const { toggle, isWishlisted } = useWishlist()
   const router = useRouter()
   const [hovered, setHovered] = useState(false)
+
+  const wishlisted = isWishlisted(product.id)
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -32,6 +36,11 @@ export default function ProductCard({ product }: Props) {
     openCart()
   }
 
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    toggle(product)
+  }
+
   return (
     <Link
       href={ROUTES.PRODUCT(product.id)}
@@ -39,7 +48,6 @@ export default function ProductCard({ product }: Props) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Image */}
       <div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden mb-4">
         {product.imageUrl ? (
           <img
@@ -53,17 +61,26 @@ export default function ProductCard({ product }: Props) {
           </div>
         )}
 
-        {/* Status badge */}
         {product.status === 'INACTIVE' && (
           <div className="absolute top-3 left-3 bg-black text-white text-[10px] font-semibold tracking-widest uppercase px-2 py-1">
             Sold Out
           </div>
         )}
 
-        {/* Add to cart overlay */}
-        <div
-          className={`absolute bottom-0 left-0 right-0 transition-transform duration-300 ${hovered ? 'translate-y-0' : 'translate-y-full'}`}
+        {/* 위시리스트 하트 버튼 */}
+        <button
+          onClick={handleWishlist}
+          className={`absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 ${
+            wishlisted
+              ? 'text-red-500 opacity-100'
+              : 'text-white opacity-0 group-hover:opacity-100'
+          }`}
         >
+          <Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} />
+        </button>
+
+        {/* Add to cart 오버레이 */}
+        <div className={`absolute bottom-0 left-0 right-0 transition-transform duration-300 ${hovered ? 'translate-y-0' : 'translate-y-full'}`}>
           <button
             onClick={handleAddToCart}
             disabled={isAdding || product.status === 'INACTIVE' || product.stockQuantity === 0}
@@ -74,7 +91,6 @@ export default function ProductCard({ product }: Props) {
         </div>
       </div>
 
-      {/* Info */}
       <div className="space-y-1">
         <p className="text-[10px] tracking-widest uppercase text-zinc-400">{product.categoryName ?? product.category?.name ?? ''}</p>
         <p className="text-sm font-medium leading-snug group-hover:underline underline-offset-2 transition-all">

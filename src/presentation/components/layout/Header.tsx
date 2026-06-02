@@ -1,12 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingBag, Search, User, Menu, X } from 'lucide-react'
+import { ShoppingBag, Search, User, Menu, X, Heart } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { useUIStore } from '@/presentation/store/ui.store'
 import { useCart } from '@/presentation/hooks/useCart'
+import { useWishlist } from '@/presentation/hooks/useWishlist'
 import { ROUTES } from '@/shared/constants/routes'
 import { useState } from 'react'
+import { useAuth } from '@/presentation/hooks/useAuth'
 
 const NAV_LINKS = [
   { label: 'NEW', href: ROUTES.PRODUCTS },
@@ -14,9 +16,11 @@ const NAV_LINKS = [
 ]
 
 export default function Header() {
-  const { isAuthenticated, logout } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()
+  const { logout } = useAuth()
   const { openCart } = useUIStore()
   const { totalItems } = useCart()
+  const { items: wishlistItems } = useWishlist()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -42,9 +46,19 @@ export default function Header() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <Link href={ROUTES.PRODUCTS} className="p-2 hover:bg-zinc-50 rounded-full transition-colors">
               <Search size={18} />
+            </Link>
+
+            {/* 위시리스트 */}
+            <Link href={ROUTES.WISHLIST} className="relative p-2 hover:bg-zinc-50 rounded-full transition-colors">
+              <Heart size={18} />
+              {wishlistItems.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {wishlistItems.length > 9 ? '9+' : wishlistItems.length}
+                </span>
+              )}
             </Link>
 
             {isAuthenticated ? (
@@ -55,6 +69,9 @@ export default function Header() {
                 <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-zinc-100 shadow-lg rounded-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                   <Link href={ROUTES.ORDERS} className="block px-4 py-2.5 text-xs tracking-wide hover:bg-zinc-50">
                     주문 내역
+                  </Link>
+                  <Link href={ROUTES.WISHLIST} className="block px-4 py-2.5 text-xs tracking-wide hover:bg-zinc-50">
+                    위시리스트
                   </Link>
                   <button onClick={logout} className="block w-full text-left px-4 py-2.5 text-xs tracking-wide hover:bg-zinc-50">
                     로그아웃
@@ -67,6 +84,7 @@ export default function Header() {
               </Link>
             )}
 
+            {/* 장바구니 */}
             <button
               onClick={openCart}
               className="relative p-2 hover:bg-zinc-50 rounded-full transition-colors"
@@ -79,7 +97,7 @@ export default function Header() {
               )}
             </button>
 
-            {/* Mobile menu */}
+            {/* 모바일 메뉴 */}
             <button
               className="md:hidden p-2 hover:bg-zinc-50 rounded-full transition-colors"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -103,6 +121,13 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href={ROUTES.WISHLIST}
+            onClick={() => setMenuOpen(false)}
+            className="block px-6 py-4 text-xs font-semibold tracking-widest uppercase border-b border-zinc-50 hover:bg-zinc-50 transition-colors"
+          >
+            WISHLIST
+          </Link>
         </div>
       )}
     </header>

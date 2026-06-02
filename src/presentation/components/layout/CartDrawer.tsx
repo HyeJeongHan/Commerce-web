@@ -1,6 +1,6 @@
 'use client'
 
-import { X, Trash2, ShoppingBag } from 'lucide-react'
+import { X, Trash2, ShoppingBag, Plus, Minus } from 'lucide-react'
 import { useUIStore } from '@/presentation/store/ui.store'
 import { useCart } from '@/presentation/hooks/useCart'
 import { useAuthStore } from '@/presentation/store/auth.store'
@@ -12,7 +12,7 @@ import { ROUTES } from '@/shared/constants/routes'
 
 export default function CartDrawer() {
   const { isCartOpen, closeCart } = useUIStore()
-  const { cart, removeFromCart, isRemoving } = useCart()
+  const { cart, removeFromCart, increaseQuantity, decreaseQuantity, isRemoving } = useCart()
   const { isAuthenticated } = useAuthStore()
   const createOrder = useCreateOrder()
 
@@ -89,9 +89,27 @@ export default function CartDrawer() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug truncate">{getCartItemName(item)}</p>
                     <p className="text-xs text-zinc-400 mt-0.5">{getCartItemCategory(item)}</p>
-                    <p className="text-sm font-semibold mt-2">{formatPrice(getCartItemPrice(item))}</p>
+                    <p className="text-sm font-semibold mt-1.5">{formatPrice(getCartItemPrice(item))}</p>
+
+                    {/* 수량 조절 */}
                     <div className="flex items-center justify-between mt-3">
-                      <span className="text-xs text-zinc-500">수량 {item.quantity}</span>
+                      <div className="flex items-center border border-zinc-200">
+                        <button
+                          onClick={() => decreaseQuantity(item)}
+                          disabled={isRemoving}
+                          className="w-7 h-7 flex items-center justify-center hover:bg-zinc-50 transition-colors disabled:opacity-40"
+                        >
+                          <Minus size={12} />
+                        </button>
+                        <span className="w-8 text-center text-xs font-medium">{item.quantity}</span>
+                        <button
+                          onClick={() => increaseQuantity(item)}
+                          disabled={isRemoving}
+                          className="w-7 h-7 flex items-center justify-center hover:bg-zinc-50 transition-colors disabled:opacity-40"
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
                       <button
                         onClick={() => removeFromCart(item.id)}
                         disabled={isRemoving}
