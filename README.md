@@ -2,7 +2,7 @@
 
 **Spring Boot 백엔드 기반 온라인 커머스 프론트엔드**
 
-Adidas, JCLE 스타일의 미니멀 블랙&화이트 디자인으로 제작된 풀스택 커머스 애플리케이션입니다.
+미니멀 블랙&화이트 디자인으로 제작된 커머스입니다.
 
 백엔드 레포지토리: [HyeJeongHan/Commerce](https://github.com/HyeJeongHan/Commerce)
 
